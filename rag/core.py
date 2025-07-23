@@ -1,5 +1,6 @@
 from langchain_ollama.llms import OllamaLLM
 from .prompt_builder import prompt
+from utils.graphic import print_logo
 #from vector import retriever
 
 model = OllamaLLM(model="llama3") # Base Model from Ollama
@@ -9,7 +10,7 @@ chain = prompt | model # Pipeline using Langchain
 exit_kw = ["/q", "/quit", "/exit"]
 
 def chat():
-    print("RISCV-GPT")
+    print_logo()
     print("\033[90mType your question here (or type '/q', '/quit', '/exit' to quit):\n\033[0m")
     while True:
         question = input(">>> ")
