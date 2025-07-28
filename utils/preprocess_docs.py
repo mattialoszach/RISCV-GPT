@@ -38,7 +38,20 @@ def chunk_documents(documents: list[Document], chunk_size: int = 1000, overlap: 
     )
     return splitter.split_documents(documents)
 
+
 def preprocess_pdf_documents(data_dir: str = "data") -> list[Document]:
+    """
+    Loads and preprocesses the official RISC-V PDF specification documents for use in a vector database.
+
+    This function performs the full preprocessing pipeline:
+    - Loads both privileged and unprivileged PDFs from the specified data directory
+    - Skips frontmatter pages such as title and table of contents
+    - Adds useful metadata like the visible page number and file name
+    - Splits each document into semantically meaningful, overlapping text chunks
+
+    Returns:
+        list[Document]: A list of chunked and metadata-rich Document objects, ready for embedding and retrieval.
+    """
     docs = load_all_riscv_pdfs(data_dir)
     chunks = chunk_documents(docs)
     return chunks
