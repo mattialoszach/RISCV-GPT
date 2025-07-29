@@ -11,7 +11,7 @@ exit_kw = ["/q", "/quit", "/exit"]
 
 def chat():
     print_logo()
-    print("\033[90mType your question here (or type '/q', '/quit', '/exit' to quit):\n\033[0m")
+    print("    \033[38;5;250m↳ Type your question here (or type '/q', '/quit', '/exit' to quit):\n\033[0m")
     while True:
         question = input(">>> ")
         if question.lower() in exit_kw:
