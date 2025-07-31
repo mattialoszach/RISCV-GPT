@@ -1,6 +1,7 @@
 from langchain_ollama.llms import OllamaLLM
+import threading
 from .prompt_builder import prompt
-from utils.graphic import print_logo
+from utils.graphic import print_logo, draw_box, spinner
 #from vector import retriever
 
 model = OllamaLLM(model="llama3") # Base Model from Ollama
@@ -12,15 +13,30 @@ exit_kw = ["/q", "/quit", "/exit"]
 def chat():
     print_logo()
     print("    \033[38;5;250m↳ Type your question here (or type '/q', '/quit', '/exit' to quit):\n\033[0m")
+
     while True:
-        question = input(">>> ")
+        question = input(">>> ").strip()
         if question.lower() in exit_kw:
+            print("\n    \033[38;5;250m↳ Goodbye! See you soon.\033[0m\n")
             break
-        if question.lower()[0] == '/':
-            print("\033[90mType your question here (or type '/q', '/quit', '/exit' to quit):\033[0m")
+        if question.startswith("/"):
+            print("\n    \033[38;5;250m↳ Type your question here (or type '/q', '/quit', '/exit' to quit):\n\033[0m")
             continue
-        
-        #profiles = retriever.invoke(question) # Find relevant Vector DB entries
-        #result = chain.invoke({"profiles": profiles, "question": question}) # Run Pipeline
-        #print(result)
-        print("\n")
+        if not question:
+            continue
+
+        print()  # Formatting
+
+        # Start Spinner Thread
+        spinner.stop_flag = False
+        t = threading.Thread(target=spinner)
+        t.start()
+
+        result = chain.invoke({"context": "Hello world!", "question": question})
+
+        # Finish Spinner Thread
+        spinner.stop_flag = True
+        t.join()
+
+        # Output LLM response
+        draw_box(result)
