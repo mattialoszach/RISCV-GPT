@@ -6,41 +6,56 @@ from utils.graphic import print_logo, draw_box, spinner
 from config.config import setup
 #from vector import retriever
 
-info_model, model_name = setup()
-model = OllamaLLM(model=model_name) # Base Model from Ollama
+class ChatSession:
+    def __init__(self):
+        self.info_model = None
+        self.model_name = None
+        self.model = None
+        self.chain = None
+        self.exit_kw = ["/q", "/quit", "/exit"]
+        self.init_model()
 
-chain = prompt | model # Pipeline using Langchain
+    def init_model(self, exist=False):
+        self.info_model, self.model_name = setup(exist=exist)
+        self.model = OllamaLLM(model=self.model_name)
+        self.chain = prompt | self.model
 
-exit_kw = ["/q", "/quit", "/exit"]
+    def chat(self):
+        print_logo()
+        print(self.info_model)
+        print("    \033[38;5;250m↪ Type your question here (or type '/q', '/quit', '/exit' to quit)\033[0m")
+        print("    \033[38;5;250m↪ Use '/model' to change your base model\n\033[0m")
 
-def chat():
-    print_logo()
-    print(info_model)
-    print("    \033[38;5;250m↪ Type your question here (or type '/q', '/quit', '/exit' to quit):\n\033[0m")
+        while True:
+            question = input(f"{YELLOW}❯ {RESET}").strip()
+            if question.lower() in self.exit_kw:
+                print("\n    \033[38;5;250m↪ Goodbye! See you soon.\033[0m\n")
+                break
+            if question.lower() == "/model":
+                self.info_model, self.model_name = setup(exist=True)
+                self.model = OllamaLLM(model=self.model_name) # New model
+                self.chain = prompt | self.model # New chain
+                print("\n", self.info_model, "\n")
+                continue
+            if question.startswith("/"):
+                print("\n    \033[38;5;250m↪ Type your question here (or type '/q', '/quit', '/exit' to quit)\033[0m")
+                print("    \033[38;5;250m↪ Use '/model' to change your base model\n\033[0m")
+                continue
+            if not question:
+                continue
 
-    while True:
-        question = input(f"{YELLOW}❯ {RESET}").strip()
-        if question.lower() in exit_kw:
-            print("\n    \033[38;5;250m↪ Goodbye! See you soon.\033[0m\n")
-            break
-        if question.startswith("/"):
-            print("\n    \033[38;5;250m↪ Type your question here (or type '/q', '/quit', '/exit' to quit):\n\033[0m")
-            continue
-        if not question:
-            continue
+            print()  # Formatting
 
-        print()  # Formatting
+            # Start Spinner Thread
+            spinner.stop_flag = False
+            t = threading.Thread(target=spinner)
+            t.start()
 
-        # Start Spinner Thread
-        spinner.stop_flag = False
-        t = threading.Thread(target=spinner)
-        t.start()
+            result = self.chain.invoke({"context": "Hello world!", "question": question})
 
-        result = chain.invoke({"context": "Hello world!", "question": question})
+            # Finish Spinner Thread
+            spinner.stop_flag = True
+            t.join()
 
-        # Finish Spinner Thread
-        spinner.stop_flag = True
-        t.join()
-
-        # Output LLM response
-        draw_box(result)
+            # Output LLM response
+            draw_box(result)

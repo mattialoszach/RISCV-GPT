@@ -1,4 +1,5 @@
-from rag.core import chat
+from rag.core import ChatSession
 
 if __name__ == "__main__":
-    chat()
+    session = ChatSession()
+    session.chat()
