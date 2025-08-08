@@ -1,10 +1,10 @@
 from langchain_ollama.llms import OllamaLLM
 import threading
-from .prompt_builder import prompt
 from utils.graphic import BLUE, YELLOW, RESET
 from utils.graphic import print_logo, draw_box, spinner
 from config.config import setup
-#from vector import retriever
+from .prompt_builder import prompt, format_context_with_sources
+from .vector import retriever
 
 class ChatSession:
     def __init__(self):
@@ -50,8 +50,12 @@ class ChatSession:
             spinner.stop_flag = False
             t = threading.Thread(target=spinner)
             t.start()
-
-            result = self.chain.invoke({"context": "Hello world!", "question": question})
+            
+            # Retrieve context and answer question (LLM inference using RAG)
+            context_docs = retriever.invoke(question) # Find relevant context using Vector DB
+            formatted_context = format_context_with_sources(context_docs)
+            print(formatted_context) ###### Testing/Debugging (can be removed)
+            result = self.chain.invoke({"context": formatted_context, "question": question})
 
             # Finish Spinner Thread
             spinner.stop_flag = True
