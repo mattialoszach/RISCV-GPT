@@ -17,7 +17,7 @@ class ChatSession:
 
     def init_model(self, exist=False):
         self.info_model, self.model_name = setup(exist=exist)
-        self.model = OllamaLLM(model=self.model_name)
+        self.model = OllamaLLM(model=self.model_name, temperature=0.4)
         self.chain = prompt | self.model
 
     def chat(self):
@@ -46,20 +46,31 @@ class ChatSession:
 
             print()  # Formatting
 
-            # Start Spinner Thread
+            # Retrieve context (using RAG)
+            context_docs = retriever.invoke(question) # Find relevant context using Vector DB
+            metadata_source, formatted_context = format_context_with_sources(context_docs)
+            
+            ###### Testing/Debugging (can be removed)
+            #print(formatted_context, "\n")
+            
+            # Print Vector DB Search Result Metadata
+            print(f"  {BLUE}Using the following sources as reference:{RESET}")
+            for source in metadata_source:
+                print(f"    \033[1m{BLUE}+ {source}{RESET}\033[0m")
+            print("")
+
+            # LLM Inference
+            # Start Spinner Thread (UI Animation)
             spinner.stop_flag = False
             t = threading.Thread(target=spinner)
             t.start()
             
-            # Retrieve context and answer question (LLM inference using RAG)
-            context_docs = retriever.invoke(question) # Find relevant context using Vector DB
-            formatted_context = format_context_with_sources(context_docs)
-            print(formatted_context) ###### Testing/Debugging (can be removed)
+            # Answer question (LLM inference using context from RAG)
             result = self.chain.invoke({"context": formatted_context, "question": question})
 
-            # Finish Spinner Thread
+            # Finish Spinner Thread (UI Animation)
             spinner.stop_flag = True
             t.join()
 
-            # Output LLM response
+            # Output LLM response (with UI Box)
             draw_box(result)
