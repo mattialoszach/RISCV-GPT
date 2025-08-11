@@ -54,10 +54,12 @@ class ChatSession:
             #print(formatted_context, "\n")
             
             # Print Vector DB Search Result Metadata
-            print(f"  {BLUE}Using the following sources as reference:{RESET}")
-            for source in metadata_source:
-                print(f"    \033[1m{BLUE}+ {source}{RESET}\033[0m")
-            print("")
+            if len(metadata_source) != 0:
+                print(f"  {BLUE}Using the following sources as reference:{RESET}")
+                for source in metadata_source:
+                    print(f"    \033[1m{BLUE}+ {source}{RESET}\033[0m")
+                
+            print("") # Formatting
 
             # LLM Inference
             # Start Spinner Thread (UI Animation)

@@ -24,5 +24,9 @@ if vector_store._collection.count() == 0:
     print(f"✅ {len(chunks)} documents successfully added.")
 
 retriever = vector_store.as_retriever(
-    search_kwargs={"k": 5} # Optional: Retrieval amount of entries in DB
+    search_type="similarity_score_threshold",
+    search_kwargs={
+        "k": 5,                 # max. retrievals
+        "score_threshold": 0.30 # only keep result if above threshold
+    }
 )
