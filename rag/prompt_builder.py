@@ -14,6 +14,7 @@ def format_context_with_sources(documents):
         formatted_chunks.append(f"> {text}\n> [{source}, page {page}]")
     return metadata_source, "\n\n---\n\n".join(formatted_chunks)
 
+# System Prompt + Context + Question (User Prompt)
 template = """
 You are a RISC-V specification expert.  
 Your goal is to answer the QUESTION with a thorough, clear, and detailed explanation, strictly based on the provided CONTEXT.  

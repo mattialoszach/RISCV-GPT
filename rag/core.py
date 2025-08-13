@@ -50,8 +50,6 @@ class ChatSession:
             context_docs = retriever.invoke(question) # Find relevant context using Vector DB
             metadata_source, formatted_context = format_context_with_sources(context_docs)
             
-            #print(formatted_context, "\n") # Testing/Debugging RAG Results (can be removed)
-            
             # Print Vector DB Search Result Metadata
             if len(metadata_source) != 0:
                 print(f"  {BLUE}Using the following sources as reference:{RESET}")
