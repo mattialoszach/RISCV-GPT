@@ -26,6 +26,9 @@ class ChatSession:
         print("    \033[38;5;250m↪ Type your question here (or type '/q', '/quit', '/exit' to quit)\033[0m")
         print("    \033[38;5;250m↪ Use '/model' to change your base model\n\033[0m")
 
+        print("    \033[38;5;250mℹ All citations are based on the RISC-V ISA Specifications\033[0m")
+        print("    \033[38;5;250m  available at: https://riscv.org/specifications/ratified/\n\033[0m")
+
         while True:
             question = input(f"{YELLOW}❯ {RESET}").strip()
             if question.lower() in self.exit_kw:
