@@ -32,7 +32,7 @@ This repo uses [uv](https://github.com/astral-sh/uv) for Python environments & d
 
 ### Clone this repository
 ```bash
-https://github.com/mattialoszach/RISCV-GPT.git
+git clone https://github.com/mattialoszach/RISCV-GPT.git
 cd RISCV-GPT
 ```
 
