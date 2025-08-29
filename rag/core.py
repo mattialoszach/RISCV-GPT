@@ -2,13 +2,15 @@ from langchain_ollama.llms import OllamaLLM
 import threading
 from utils.graphic import BLUE, YELLOW, RESET
 from utils.graphic import print_logo, draw_box, spinner
-from config.config import setup
+from config.config import setup_model, setup_layout
 from .prompt_builder import prompt, format_context_with_sources
 from .vector import retriever
 
 class ChatSession:
     def __init__(self):
         self.info_model = None
+        self.info_layout = None
+        self.curr_layout = None
         self.model_name = None
         self.model = None
         self.chain = None
@@ -16,7 +18,8 @@ class ChatSession:
         self.init_model()
 
     def init_model(self, exist=False):
-        self.info_model, self.model_name = setup(exist=exist)
+        self.info_model, self.model_name = setup_model(exist=exist)
+        self.info_layout, self.curr_layout = setup_layout(exist=exist)
         self.model = OllamaLLM(model=self.model_name, temperature=0.4)
         self.chain = prompt | self.model
 
@@ -24,10 +27,11 @@ class ChatSession:
         print_logo()
         print(self.info_model)
         print("    \033[38;5;250m↪ Type your question here (or type '/q', '/quit', '/exit' to quit)\033[0m")
-        print("    \033[38;5;250m↪ Use '/model' to change your base model\n\033[0m")
+        print("    \033[38;5;250m↪ Use '/model' to change your base model\033[0m")
+        print(f"    \033[38;5;250m↪ Use '/layout' to change the layout. Currently using {BLUE}'{self.curr_layout}'{RESET}\n\033[0m")
 
-        print("    \033[38;5;250mℹ All citations are based on the RISC-V ISA Specifications\033[0m")
-        print("    \033[38;5;250m  available at: https://riscv.org/specifications/ratified/\n\033[0m")
+        print("    \033[38;5;250m[i] All citations are based on the RISC-V ISA Specifications\033[0m")
+        print("    \033[38;5;250m    available at: https://riscv.org/specifications/ratified/\n\033[0m")
 
         while True:
             question = input(f"{YELLOW}❯ {RESET}").strip()
@@ -35,14 +39,19 @@ class ChatSession:
                 print("\n    \033[38;5;250m↪ Goodbye! See you soon.\033[0m\n")
                 break
             if question.lower() == "/model":
-                self.info_model, self.model_name = setup(exist=True)
+                self.info_model, self.model_name = setup_model(exist=True)
                 self.model = OllamaLLM(model=self.model_name) # New model
                 self.chain = prompt | self.model # New chain
                 print("\n", self.info_model, "\n")
                 continue
+            if question.lower() == "/layout":
+                self.info_layout, self.curr_layout = setup_layout(exist=True)
+                print("\n", self.info_layout, "\n")
+                continue
             if question.startswith("/"):
                 print("\n    \033[38;5;250m↪ Type your question here (or type '/q', '/quit', '/exit' to quit)\033[0m")
-                print("    \033[38;5;250m↪ Use '/model' to change your base model\n\033[0m")
+                print("    \033[38;5;250m↪ Use '/model' to change your base model\033[0m")
+                print(f"    \033[38;5;250m↪ Use '/layout' to change the layout\n\033[0m")
                 continue
             if not question:
                 continue
@@ -74,5 +83,10 @@ class ChatSession:
             spinner.stop_flag = True
             t.join()
 
-            # Output LLM response (with UI Box)
-            draw_box(result)
+            # Layout Decision
+            if self.curr_layout == "Highlight":
+                # Output LLM response (with UI Box)
+                draw_box(result)
+            else:
+                # Basic Layout (easier for Copy Command)
+                print(f"{BLUE}❯ {RESET}{result}\n")
