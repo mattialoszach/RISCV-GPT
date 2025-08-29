@@ -30,6 +30,13 @@ This repo uses [uv](https://github.com/astral-sh/uv) for Python environments & d
 - [Ollama](https://ollama.com)
 - [uv](https://github.com/astral-sh/uv)
 
+Make sure you have installed a capable LLM of your choice for Ollama.
+Also, for RAG it is required to have a **large embeddings model** installed. This project uses the "mxbai-embed-large", which can be installed using:
+```bash
+ollama pull mxbai-embed-large
+```
+
+
 ### Clone this repository
 ```bash
 git clone https://github.com/mattialoszach/RISCV-GPT.git
